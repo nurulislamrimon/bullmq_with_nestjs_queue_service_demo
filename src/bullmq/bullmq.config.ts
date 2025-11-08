@@ -13,7 +13,7 @@ export class BullmqService implements OnModuleInit, OnModuleDestroy {
   private worker: Worker;
   private events: QueueEvents;
 
-  async onModuleInit() {
+  onModuleInit() {
     // ✅ Use same queue name everywhere
     const queueName = 'emailQueue';
 
@@ -24,7 +24,8 @@ export class BullmqService implements OnModuleInit, OnModuleDestroy {
       queueName,
       async (job) => {
         console.log(`⚙️ Worker processing job ${job.id}:`, job.data);
-        await this.handleEmail(job.data);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        await this.handleEmail(job?.data);
       },
       { connection: this.connection, concurrency: 5 },
     );
@@ -41,12 +42,12 @@ export class BullmqService implements OnModuleInit, OnModuleDestroy {
     console.log('🚀 BullMQ Worker is running');
   }
 
-  async handleEmail(data: any) {
-    console.log(`📧 Sending email to ${data.email}`);
+  async handleEmail(data: Record<string, string>) {
+    console.log(`📧 Sending email to ${data?.email}`);
     await new Promise((r) => setTimeout(r, 1500)); // simulate work
   }
 
-  async addEmailJob(data: any, delayMs?: number) {
+  async addEmailJob(data: Record<string, string>, delayMs?: number) {
     const job = await this.queue.add('sendEmail', data, {
       delay: delayMs || 0,
     });

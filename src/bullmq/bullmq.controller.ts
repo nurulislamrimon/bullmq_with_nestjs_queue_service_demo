@@ -7,7 +7,11 @@ export class EmailController {
 
   @Post('send')
   async sendEmail(@Body() body: { email: string }) {
-    await this.bullmqService.addEmailJob({ email: body.email }, 5000);
-    return { message: 'Email job scheduled' };
+    if (!body?.email) {
+      return { message: 'Please Provide an email' };
+    } else {
+      await this.bullmqService.addEmailJob({ email: body.email }, 5000);
+      return { message: 'Email job scheduled' };
+    }
   }
 }
